@@ -1,0 +1,134 @@
+@page "/events/{EventId:int}"
+@inject IEventService EventService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_event?.Name ?? "Event Details") - EventEase</PageTitle>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/events" class="text-decoration-none">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@(_event?.Name ?? "Details")</li>
+        </ol>
+    </nav>
+
+    @if (_event is null)
+    {
+        <div class="alert alert-warning d-flex align-items-center">
+            <span class="me-2">&#9888;</span>
+            <div>Event not found. <a href="/events" class="alert-link">Return to events list.</a></div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-primary fs-6">@_event.Category</span>
+                            <span class="small">Capacity: @_event.Capacity attendees</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h2 class="fw-bold mb-3">@_event.Name</h2>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-3 mt-1 text-primary fs-4">&#128197;</div>
+                                    <div>
+                                        <div class="fw-semibold text-muted small text-uppercase">Date &amp; Time</div>
+                                        <div class="fw-bold">@_event.Date.ToString("dddd, MMMM dd, yyyy")</div>
+                                        <div class="text-muted">@_event.Date.ToString("hh:mm tt")</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-3 mt-1 text-primary fs-4">&#128205;</div>
+                                    <div>
+                                        <div class="fw-semibold text-muted small text-uppercase">Location</div>
+                                        <div class="fw-bold">@_event.Location</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <h5 class="fw-semibold mb-2">About This Event</h5>
+                        <p class="text-secondary lh-lg">@_event.Description</p>
+                    </div>
+                    <div class="card-footer bg-transparent py-3 d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-secondary" @onclick="GoBack">
+                            &larr; Back to Events
+                        </button>
+                        <button class="btn btn-primary px-4" @onclick="NavigateToRegister">
+                            Register Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-primary mb-3">
+                    <div class="card-body text-center py-4">
+                        <div class="display-6 mb-2">&#127881;</div>
+                        <h5 class="fw-bold">Ready to join?</h5>
+                        <p class="text-muted small">Secure your spot at <strong>@_event.Name</strong> today.</p>
+                        <button class="btn btn-primary w-100" @onclick="NavigateToRegister">
+                            Register for This Event
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3">Event Summary</h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li class="mb-2">
+                                <span class="text-muted">Name:</span>
+                                <span class="fw-semibold ms-1">@_event.Name</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="text-muted">Date:</span>
+                                <span class="fw-semibold ms-1">@_event.Date.ToString("MM/dd/yyyy")</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="text-muted">Location:</span>
+                                <span class="fw-semibold ms-1">@_event.Location</span>
+                            </li>
+                            <li>
+                                <span class="text-muted">Category:</span>
+                                <span class="fw-semibold ms-1">@_event.Category</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+
+    private BlazorApp.Models.Event? _event;
+
+    protected override void OnParametersSet()
+    {
+        _event = EventService.GetEventById(EventId);
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/events");
+    }
+
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo($"/events/{EventId}/register");
+    }
+}

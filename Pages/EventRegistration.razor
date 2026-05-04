@@ -1,0 +1,181 @@
+@page "/events/{EventId:int}/register"
+@inject IEventService EventService
+@inject IRegistrationService RegistrationService
+@inject NavigationManager Navigation
+
+<PageTitle>Register - EventEase</PageTitle>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/events" class="text-decoration-none">Events</a></li>
+            @if (_event is not null)
+            {
+                <li class="breadcrumb-item"><a href="/events/@EventId" class="text-decoration-none">@_event.Name</a></li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">Register</li>
+        </ol>
+    </nav>
+
+    @if (_event is null)
+    {
+        <div class="alert alert-warning">
+            Event not found. <a href="/events" class="alert-link">Return to events list.</a>
+        </div>
+    }
+    else if (_registrationSuccess)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center py-5">
+                <div class="display-1 mb-3">&#10003;</div>
+                <h2 class="fw-bold text-success mb-2">You're Registered!</h2>
+                <p class="text-muted mb-1">
+                    Thank you, <strong>@_registration.FirstName @_registration.LastName</strong>!
+                </p>
+                <p class="text-muted mb-4">
+                    You have successfully registered for <strong>@_event.Name</strong> on @_event.Date.ToString("MMMM dd, yyyy").
+                    A confirmation will be sent to <strong>@_registration.Email</strong>.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-outline-primary" @onclick="GoToEventDetail">
+                        &larr; Back to Event
+                    </button>
+                    <button class="btn btn-primary" @onclick="GoToEvents">
+                        Browse More Events
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">Event Registration</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                @_errorMessage
+                                <button type="button" class="btn-close" @onclick="() => _errorMessage = string.Empty"></button>
+                            </div>
+                        }
+
+                        <EditForm Model="_registration" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                                    <InputText class="form-control" @bind-Value="_registration.FirstName" placeholder="Enter first name" />
+                                    <ValidationMessage For="@(() => _registration.FirstName)" class="text-danger small" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                                    <InputText class="form-control" @bind-Value="_registration.LastName" placeholder="Enter last name" />
+                                    <ValidationMessage For="@(() => _registration.LastName)" class="text-danger small" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="_registration.Email" placeholder="you@example.com" type="email" />
+                                <ValidationMessage For="@(() => _registration.Email)" class="text-danger small" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Phone Number</label>
+                                <InputText class="form-control" @bind-Value="_registration.PhoneNumber" placeholder="(555) 000-0000" />
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button type="button" class="btn btn-outline-secondary" @onclick="GoToEventDetail">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    Complete Registration
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 mt-4 mt-lg-0">
+                <div class="card shadow-sm border-0 bg-light">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">&#128203; Registration Summary</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3">
+                                <div class="text-muted small text-uppercase fw-semibold">Event</div>
+                                <div class="fw-bold">@_event.Name</div>
+                            </li>
+                            <li class="mb-3">
+                                <div class="text-muted small text-uppercase fw-semibold">Date</div>
+                                <div class="fw-bold">@_event.Date.ToString("dddd, MMMM dd, yyyy")</div>
+                                <div class="text-muted small">@_event.Date.ToString("hh:mm tt")</div>
+                            </li>
+                            <li class="mb-3">
+                                <div class="text-muted small text-uppercase fw-semibold">Location</div>
+                                <div class="fw-bold">@_event.Location</div>
+                            </li>
+                            <li>
+                                <div class="text-muted small text-uppercase fw-semibold">Category</div>
+                                <div class="fw-bold">@_event.Category</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+
+    private BlazorApp.Models.Event? _event;
+    private BlazorApp.Models.Registration _registration = new();
+    private bool _registrationSuccess = false;
+    private string _errorMessage = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        _event = EventService.GetEventById(EventId);
+        _registration = new BlazorApp.Models.Registration { EventId = EventId };
+    }
+
+    private void HandleValidSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(_registration.FirstName) ||
+            string.IsNullOrWhiteSpace(_registration.LastName) ||
+            string.IsNullOrWhiteSpace(_registration.Email))
+        {
+            _errorMessage = "Please fill in all required fields.";
+            return;
+        }
+
+        if (RegistrationService.IsAlreadyRegistered(EventId, _registration.Email))
+        {
+            _errorMessage = "This email address is already registered for this event.";
+            return;
+        }
+
+        RegistrationService.RegisterForEvent(_registration);
+        _registrationSuccess = true;
+    }
+
+    private void GoToEventDetail()
+    {
+        Navigation.NavigateTo($"/events/{EventId}");
+    }
+
+    private void GoToEvents()
+    {
+        Navigation.NavigateTo("/events");
+    }
+}
