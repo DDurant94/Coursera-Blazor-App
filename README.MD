@@ -113,6 +113,31 @@ Blazor renders `@variable` output as text nodes, not raw HTML, so user-supplied 
 | Serialization | `System.Text.Json` (session persistence) |
 | Routing | Blazor Router with typed route constraints |
 
+## Running locally
+
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
+
+### Steps
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/DDurant94/Coursera-Blazor-App.git
+cd Coursera-Blazor-App/BlazorApp
+
+# 2. Restore dependencies and run
+dotnet run
+```
+
+Then open your browser to the URL shown in the terminal (typically `https://localhost:5001` or `http://localhost:5000`).
+
+> **Hot reload** is available during development — use `dotnet watch` instead of `dotnet run` and the browser will automatically reflect code changes without a manual restart.
+
+```bash
+dotnet watch
+```
+
 ## Academic context
 
 This is the capstone project for **Module Four: Blazor for Front-End Development** in the [Microsoft Full-Stack Developer Professional Certificate](https://www.coursera.org/professional-certificates/microsoft-full-stack-developer) on Coursera. The module covers Blazor's component model, two-way data binding, routing, and form validation — all of which are demonstrated here. GitHub Copilot was used throughout the development process to explore patterns, generate boilerplate, and speed up iteration.
