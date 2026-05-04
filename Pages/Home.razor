@@ -16,7 +16,7 @@
                 GitHub Repo for this project is <a href="https://github.com/DDurant94/Coursera-Blazor-App">https://github.com/DDurant94/Coursera-Blazor-App</a> 
             </p>
             <div class="d-flex gap-3">
-                <a href="/events" class="btn btn-primary btn-lg px-4">Browse Events</a>
+                <a href="events" class="btn btn-primary btn-lg px-4">Browse Events</a>
             </div>
         </div>
         <div class="col-lg-5 d-none d-lg-flex justify-content-center">
@@ -50,7 +50,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold mb-0">Upcoming Events</h4>
-        <a href="/events" class="btn btn-sm btn-outline-primary">View All &rarr;</a>
+        <a href="events" class="btn btn-sm btn-outline-primary">View All &rarr;</a>
     </div>
     <div class="row row-cols-1 row-cols-md-3 g-3">
         @foreach (var evt in _previewEvents)
@@ -80,5 +80,5 @@
         _previewEvents = EventService.GetAllEvents().Take(3).ToList();
     }
 
-    private void NavigateToDetail(int id) => Navigation.NavigateTo($"/events/{id}");
+    private void NavigateToDetail(int id) => Navigation.NavigateTo($"events/{id}");
 }

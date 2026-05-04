@@ -38,7 +38,7 @@
             <span>&#128196;</span>
             <div>
                 You haven't registered for any events yet.
-                <a href="/events" class="alert-link">Browse upcoming events</a> to get started.
+                <a href="events" class="alert-link">Browse upcoming events</a> to get started.
             </div>
         </div>
     }
@@ -74,7 +74,7 @@
                                 </p>
                             </div>
                             <div class="card-footer bg-transparent">
-                                <a href="/events/@evt.Id" class="btn btn-sm btn-outline-primary">View Event</a>
+                                <a href="events/@evt.Id" class="btn btn-sm btn-outline-primary">View Event</a>
                             </div>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void GoToEvents() => Navigation.NavigateTo("/events");
+    private void GoToEvents() => Navigation.NavigateTo("events");
 
     public void Dispose()
     {

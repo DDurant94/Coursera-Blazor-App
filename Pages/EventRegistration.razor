@@ -9,10 +9,10 @@
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/events" class="text-decoration-none">Events</a></li>
+            <li class="breadcrumb-item"><a href="events" class="text-decoration-none">Events</a></li>
             @if (_event is not null)
             {
-                <li class="breadcrumb-item"><a href="/events/@EventId" class="text-decoration-none">@_event.Name</a></li>
+                <li class="breadcrumb-item"><a href="events/@EventId" class="text-decoration-none">@_event.Name</a></li>
             }
             <li class="breadcrumb-item active" aria-current="page">Register</li>
         </ol>
@@ -21,7 +21,7 @@
     @if (_event is null)
     {
         <div class="alert alert-warning">
-            Event not found. <a href="/events" class="alert-link">Return to events list.</a>
+            Event not found. <a href="events" class="alert-link">Return to events list.</a>
         </div>
     }
     else if (RegistrationService.IsEventFull(EventId, _event.Capacity) && !_registrationSuccess)
@@ -180,7 +180,7 @@
         // Guard: invalid IDs (0 or negative) redirect immediately.
         if (EventId <= 0)
         {
-            Navigation.NavigateTo("/events", replace: true);
+            Navigation.NavigateTo("events", replace: true);
             return;
         }
 
@@ -205,7 +205,7 @@
         // Guard: event no longer exists (e.g. navigated with stale URL).
         if (_event is null)
         {
-            Navigation.NavigateTo("/events", replace: true);
+            Navigation.NavigateTo("events", replace: true);
             return;
         }
 
@@ -236,10 +236,10 @@
 
     private void GoToEventDetail()
     {
-        Navigation.NavigateTo($"/events/{EventId}");
+        Navigation.NavigateTo($"events/{EventId}");
     }
 
-    private void GoToEvents() => Navigation.NavigateTo("/events");
+    private void GoToEvents() => Navigation.NavigateTo("events");
 
-    private void GoToMyRegistrations() => Navigation.NavigateTo("/my-registrations");
+    private void GoToMyRegistrations() => Navigation.NavigateTo("my-registrations");
 }

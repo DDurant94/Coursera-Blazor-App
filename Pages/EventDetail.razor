@@ -8,7 +8,7 @@
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/events" class="text-decoration-none">Events</a></li>
+            <li class="breadcrumb-item"><a href="events" class="text-decoration-none">Events</a></li>
             <li class="breadcrumb-item active" aria-current="page">@(_event?.Name ?? "Details")</li>
         </ol>
     </nav>
@@ -17,7 +17,7 @@
     {
         <div class="alert alert-warning d-flex align-items-center">
             <span class="me-2">&#9888;</span>
-            <div>Event not found. <a href="/events" class="alert-link">Return to events list.</a></div>
+            <div>Event not found. <a href="events" class="alert-link">Return to events list.</a></div>
         </div>
     }
     else
@@ -162,7 +162,7 @@
         // Guard: invalid IDs (0 or negative) redirect immediately.
         if (EventId <= 0)
         {
-            Navigation.NavigateTo("/events", replace: true);
+            Navigation.NavigateTo("events", replace: true);
             return;
         }
 
@@ -176,11 +176,11 @@
 
     private void GoBack()
     {
-        Navigation.NavigateTo("/events");
+        Navigation.NavigateTo("events");
     }
 
     private void NavigateToRegister()
     {
-        Navigation.NavigateTo($"/events/{EventId}/register");
+        Navigation.NavigateTo($"events/{EventId}/register");
     }
 }

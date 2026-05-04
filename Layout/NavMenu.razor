@@ -73,7 +73,7 @@
     private void SignOut()
     {
         SessionService.ClearSession();
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo(Navigation.BaseUri);
     }
 
     public void Dispose()
