@@ -141,3 +141,4 @@ dotnet watch
 ## Academic context
 
 This is the capstone project for **Module Four: Blazor for Front-End Development** in the [Microsoft Full-Stack Developer Professional Certificate](https://www.coursera.org/professional-certificates/microsoft-full-stack-developer) on Coursera. The module covers Blazor's component model, two-way data binding, routing, and form validation — all of which are demonstrated here. GitHub Copilot was used throughout the development process to explore patterns, generate boilerplate, and speed up iteration.
+
