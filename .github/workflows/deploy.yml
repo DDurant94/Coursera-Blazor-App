@@ -11,6 +11,10 @@ permissions:
   pages: write
   id-token: write
 
+# Opt into Node.js 24 now to avoid forced migration warnings after June 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # Only one deployment can run at a time; cancel any in-progress run for the same branch.
 concurrency:
   group: github-pages
