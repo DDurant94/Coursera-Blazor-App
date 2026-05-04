@@ -22,7 +22,7 @@ EventEase is a corporate event management app built with Blazor WebAssembly. Use
 ### Pages and components
 
 | Component | URL | What it does |
-|---|---|---|
+| --- | --- | --- |
 | `Home.razor` | `/` | Landing page — hero section and event preview |
 | `Events.razor` | `/events` | The main event listing, paginated |
 | `EventDetail.razor` | `/events/{id:int}` | Full details for a single event |
@@ -103,7 +103,7 @@ Blazor renders `@variable` output as text nodes, not raw HTML, so user-supplied 
 ## Stack
 
 | | |
-|---|---|
+| --- | --- |
 | Framework | Blazor WebAssembly (.NET 10) |
 | Language | C# |
 | Styling | Bootstrap 5 + custom CSS design system |

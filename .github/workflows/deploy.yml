@@ -29,20 +29,10 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      # StaticWebAssetBasePath tells the Blazor publish pipeline to embed
+      # the correct <base href> in index.html — more reliable than post-hoc sed.
       - name: Publish
-        run: dotnet publish -c Release -o publish
-
-      # Blazor WASM uses the <base href> tag to prefix all asset URLs.
-      # GitHub Pages project sites are served at /<repo-name>/, so we
-      # replace the default "/" with the actual repository name at build time.
-      - name: Set base href for GitHub Pages
-        run: |
-          REPO="${{ github.event.repository.name }}"
-          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO/\" />|g" publish/wwwroot/index.html
-          # Apply the same fix to 404.html if it already exists
-          if [ -f publish/wwwroot/404.html ]; then
-            sed -i "s|<base href=\"/\" />|<base href=\"/$REPO/\" />|g" publish/wwwroot/404.html
-          fi
+        run: dotnet publish -c Release -o publish -p:StaticWebAssetBasePath=/${{ github.event.repository.name }}
 
       # GitHub Pages runs Jekyll by default; files starting with "_" (like
       # Blazor's _framework/ folder) get stripped unless we opt out.
