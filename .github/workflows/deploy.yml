@@ -29,17 +29,39 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      # StaticWebAssetBasePath tells the Blazor publish pipeline to embed
-      # the correct <base href> in index.html — more reliable than post-hoc sed.
       - name: Publish
-        run: dotnet publish -c Release -o publish -p:StaticWebAssetBasePath=/${{ github.event.repository.name }}
+        run: dotnet publish -c Release -o publish
+
+      # Blazor WASM uses <base href> to prefix all asset URLs.
+      # GitHub Pages project sites are served at /<repo-name>/, so we
+      # rewrite the tag using Python (avoids shell quoting issues with sed).
+      - name: Fix base href for GitHub Pages
+        env:
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          python3 << 'PYEOF'
+          import os
+          repo = os.environ["REPO"]
+          path = "publish/wwwroot/index.html"
+          content = open(path).read()
+          old = '<base href="/" />'
+          new = f'<base href="/{repo}/" />'
+          if old in content:
+              open(path, "w").write(content.replace(old, new))
+              print(f"SUCCESS: base href set to /{repo}/")
+          else:
+              print("WARNING: pattern not found. Lines containing 'base':")
+              for line in content.splitlines():
+                  if "base" in line.lower():
+                      print(" ", line.strip())
+          PYEOF
 
       # GitHub Pages runs Jekyll by default; files starting with "_" (like
       # Blazor's _framework/ folder) get stripped unless we opt out.
       - name: Disable Jekyll
         run: touch publish/wwwroot/.nojekyll
 
-      # GitHub Pages returns 404.html for any path it can't find.  Copying
+      # GitHub Pages returns 404.html for any path it can't find. Copying
       # index.html there means Blazor's client-side router still boots and
       # handles the real URL — so deep links and browser refreshes work.
       - name: Copy index.html → 404.html for SPA routing
