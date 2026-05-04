@@ -1,0 +1,73 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment can run at a time; cancel any in-progress run for the same branch.
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  # ── Build ────────────────────────────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Publish
+        run: dotnet publish -c Release -o publish
+
+      # Blazor WASM uses the <base href> tag to prefix all asset URLs.
+      # GitHub Pages project sites are served at /<repo-name>/, so we
+      # replace the default "/" with the actual repository name at build time.
+      - name: Set base href for GitHub Pages
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO/\" />|g" publish/wwwroot/index.html
+          # Apply the same fix to 404.html if it already exists
+          if [ -f publish/wwwroot/404.html ]; then
+            sed -i "s|<base href=\"/\" />|<base href=\"/$REPO/\" />|g" publish/wwwroot/404.html
+          fi
+
+      # GitHub Pages runs Jekyll by default; files starting with "_" (like
+      # Blazor's _framework/ folder) get stripped unless we opt out.
+      - name: Disable Jekyll
+        run: touch publish/wwwroot/.nojekyll
+
+      # GitHub Pages returns 404.html for any path it can't find.  Copying
+      # index.html there means Blazor's client-side router still boots and
+      # handles the real URL — so deep links and browser refreshes work.
+      - name: Copy index.html → 404.html for SPA routing
+        run: cp publish/wwwroot/index.html publish/wwwroot/404.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  # ── Deploy ───────────────────────────────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
