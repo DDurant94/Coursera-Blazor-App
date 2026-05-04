@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject ISessionService SessionService
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -14,3 +16,11 @@
         </article>
     </main>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Restore the user's session from localStorage so a page refresh doesn't sign them out.
+        await SessionService.InitializeAsync();
+    }
+}

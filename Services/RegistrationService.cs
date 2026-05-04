@@ -7,6 +7,8 @@ public class RegistrationService : IRegistrationService
     private readonly List<Registration> _registrations = new();
     private int _nextId = 1;
 
+    public List<Registration> GetAllRegistrations() => _registrations.ToList();
+
     public List<Registration> GetRegistrationsForEvent(int eventId) =>
         _registrations.Where(r => r.EventId == eventId).ToList();
 
@@ -27,4 +29,12 @@ public class RegistrationService : IRegistrationService
     public bool IsAlreadyRegistered(int eventId, string email) =>
         _registrations.Any(r => r.EventId == eventId &&
             r.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+    // Returns the most recent registration for the given email — used by the Sign In page
+    // to restore a returning user's name and phone number into their session.
+    public Registration? FindByEmail(string email) =>
+        _registrations
+            .Where(r => r.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(r => r.RegisteredOn)
+            .FirstOrDefault();
 }

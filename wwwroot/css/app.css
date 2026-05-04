@@ -1,5 +1,24 @@
+/* ── Design tokens ──────────────────────────────────────── */
+:root {
+    --ee-primary:      #4361ee;
+    --ee-primary-dark: #3451d1;
+    --ee-bg:           #f8f9fc;
+    --ee-border:       #e2e8f0;
+    --ee-text:         #1e293b;
+    --ee-radius:       0.625rem;
+    --ee-shadow-lg:    0 10px 28px rgba(0, 0, 0, 0.13);
+    --ee-transition:   0.2s ease;
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--ee-bg);
+    color: var(--ee-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
 }
 
 h1:focus {
@@ -7,33 +26,109 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: var(--ee-primary);
 }
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+    border-radius: var(--ee-radius);
+    font-weight: 500;
+    transition: transform var(--ee-transition), box-shadow var(--ee-transition),
+                background-color var(--ee-transition), border-color var(--ee-transition);
+}
+
+.btn:hover  { transform: translateY(-1px); }
+.btn:active { transform: translateY(0);    }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: var(--ee-primary);
+    border-color: var(--ee-primary);
+    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.30);
 }
 
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--ee-primary-dark);
+    border-color: var(--ee-primary-dark);
+    box-shadow: 0 4px 14px rgba(67, 97, 238, 0.40);
+}
+
+.btn-outline-primary {
+    border-color: var(--ee-primary);
+    color: var(--ee-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--ee-primary);
+    border-color: var(--ee-primary);
+}
+
+/* ── Focus ring ─────────────────────────────────────────── */
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(67, 97, 238, 0.45);
 }
 
+/* ── Cards ──────────────────────────────────────────────── */
+.card {
+    border-radius: var(--ee-radius);
+    border-color: var(--ee-border);
+    transition: transform var(--ee-transition), box-shadow var(--ee-transition);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--ee-shadow-lg) !important;
+}
+
+/* ── Form controls ──────────────────────────────────────── */
+.form-control,
+.form-select {
+    border-radius: var(--ee-radius);
+    border-color: var(--ee-border);
+    transition: border-color var(--ee-transition), box-shadow var(--ee-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ee-primary);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+}
+
+/* ── Badges ─────────────────────────────────────────────── */
+.badge {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ── Content & page fade-in ─────────────────────────────── */
 .content {
     padding-top: 1.1rem;
 }
 
+article.content {
+    animation: ee-fadein 0.18s ease both;
+}
+
+@keyframes ee-fadein {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ── Validation ─────────────────────────────────────────── */
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid #22c55e;
 }
 
 .invalid {
-    outline: 1px solid red;
+    outline: 1px solid #ef4444;
 }
 
 .validation-message {
-    color: red;
+    color: #ef4444;
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
 }
 
 #blazor-error-ui {

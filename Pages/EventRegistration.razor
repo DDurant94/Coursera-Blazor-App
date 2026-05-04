@@ -1,6 +1,7 @@
 @page "/events/{EventId:int}/register"
 @inject IEventService EventService
 @inject IRegistrationService RegistrationService
+@inject ISessionService SessionService
 @inject NavigationManager Navigation
 
 <PageTitle>Register - EventEase</PageTitle>
@@ -56,9 +57,12 @@
                     You have successfully registered for <strong>@_event.Name</strong> on @_event.Date.ToString("MMMM dd, yyyy").
                     A confirmation will be sent to <strong>@_registration.Email</strong>.
                 </p>
-                <div class="d-flex gap-2 justify-content-center">
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
                     <button class="btn btn-outline-primary" @onclick="GoToEventDetail">
                         &larr; Back to Event
+                    </button>
+                    <button class="btn btn-outline-success" @onclick="GoToMyRegistrations">
+                        My Registrations
                     </button>
                     <button class="btn btn-primary" @onclick="GoToEvents">
                         Browse More Events
@@ -182,6 +186,16 @@
 
         _event = EventService.GetEventById(EventId);
         _registration = new BlazorApp.Models.Registration { EventId = EventId };
+
+        // Pre-fill from active session so returning users don't retype their details.
+        if (SessionService.HasSession)
+        {
+            _registration.FirstName = SessionService.CurrentUser.FirstName;
+            _registration.LastName = SessionService.CurrentUser.LastName;
+            _registration.Email = SessionService.CurrentUser.Email;
+            _registration.PhoneNumber = SessionService.CurrentUser.PhoneNumber;
+        }
+
         _registrationSuccess = false;
         _errorMessage = string.Empty;
     }
@@ -209,6 +223,14 @@
         }
 
         RegistrationService.RegisterForEvent(_registration);
+
+        // Persist user details so future forms are pre-filled and My Registrations works.
+        SessionService.StartSession(
+            _registration.FirstName,
+            _registration.LastName,
+            _registration.Email,
+            _registration.PhoneNumber);
+
         _registrationSuccess = true;
     }
 
@@ -217,8 +239,7 @@
         Navigation.NavigateTo($"/events/{EventId}");
     }
 
-    private void GoToEvents()
-    {
-        Navigation.NavigateTo("/events");
-    }
+    private void GoToEvents() => Navigation.NavigateTo("/events");
+
+    private void GoToMyRegistrations() => Navigation.NavigateTo("/my-registrations");
 }

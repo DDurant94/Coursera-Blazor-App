@@ -1,0 +1,118 @@
+@page "/sign-in"
+@inject ISessionService SessionService
+@inject IRegistrationService RegistrationService
+@inject NavigationManager Navigation
+
+<PageTitle>Sign In - EventEase</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            @if (SessionService.HasSession)
+            {
+                // Already signed in — nothing to do here.
+                <div class="card shadow text-center p-4">
+                    <div class="display-4 mb-3">&#128075;</div>
+                    <h3 class="fw-bold mb-2">You're already signed in</h3>
+                    <p class="text-muted mb-4">
+                        Signed in as <strong>@SessionService.CurrentUser.FullName</strong>.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="/my-registrations" class="btn btn-primary">My Registrations</a>
+                        <a href="/events" class="btn btn-outline-primary">Browse Events</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">&#128274; Sign In</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">
+                            Enter the email address you used when registering for an event
+                            and we'll restore your history automatically.
+                        </p>
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                @_errorMessage
+                                <button type="button" class="btn-close"
+                                        @onclick="() => _errorMessage = string.Empty"></button>
+                            </div>
+                        }
+
+                        <EditForm Model="_model" OnValidSubmit="HandleSignIn">
+                            <DataAnnotationsValidator />
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                <InputText class="form-control form-control-lg"
+                                           @bind-Value="_model.Email"
+                                           placeholder="you@example.com"
+                                           maxlength="100"
+                                           autocomplete="email" />
+                                <ValidationMessage For="@(() => _model.Email)" class="text-danger small" />
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    Sign In
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                    <div class="card-footer bg-transparent text-center text-muted small py-3">
+                        Don't have an account?
+                        <a href="/events" class="text-decoration-none fw-semibold">
+                            Register for an event
+                        </a>
+                        to get started.
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private SignInModel _model = new();
+    private string _errorMessage = string.Empty;
+
+    // Minimal model — only needs an email with validation.
+    private class SignInModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Email address is required.")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [System.ComponentModel.DataAnnotations.MaxLength(100)]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private void HandleSignIn()
+    {
+        _errorMessage = string.Empty;
+
+        var registration = RegistrationService.FindByEmail(_model.Email);
+
+        if (registration is null)
+        {
+            _errorMessage = "No account found for that email address. " +
+                            "Register for an event first to create one.";
+            return;
+        }
+
+        SessionService.StartSession(
+            registration.FirstName,
+            registration.LastName,
+            registration.Email,
+            registration.PhoneNumber);
+
+        Navigation.NavigateTo("/my-registrations");
+    }
+}

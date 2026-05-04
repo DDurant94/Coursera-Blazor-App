@@ -1,0 +1,126 @@
+@page "/my-registrations"
+@inject ISessionService SessionService
+@inject IRegistrationService RegistrationService
+@inject IEventService EventService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>My Registrations - EventEase</PageTitle>
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold text-primary">My Registrations</h1>
+            @if (SessionService.HasSession)
+            {
+                <p class="lead text-muted">
+                    Welcome back, <strong>@SessionService.CurrentUser.FirstName</strong>.
+                    Here are all the events you've signed up for.
+                </p>
+            }
+        </div>
+    </div>
+
+    @if (!SessionService.HasSession)
+    {
+        <div class="text-center py-5">
+            <div class="display-1 mb-3">&#128100;</div>
+            <h3 class="fw-bold mb-2">No Session Active</h3>
+            <p class="text-muted mb-4">
+                Register for an event and your attendance history will appear here automatically.
+            </p>
+            <button class="btn btn-primary px-4" @onclick="GoToEvents">Browse Events</button>
+        </div>
+    }
+    else if (!_myRegistrations.Any())
+    {
+        <div class="alert alert-info d-flex align-items-center gap-2">
+            <span>&#128196;</span>
+            <div>
+                You haven't registered for any events yet.
+                <a href="/events" class="alert-link">Browse upcoming events</a> to get started.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+            @foreach (var reg in _myRegistrations)
+            {
+                var evt = EventService.GetEventById(reg.EventId);
+                if (evt is not null)
+                {
+                    var isPast = evt.Date < DateTime.Now;
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center @(isPast ? "bg-secondary" : "bg-primary") text-white">
+                                <span class="badge bg-light @(isPast ? "text-secondary" : "text-primary")">
+                                    @(string.IsNullOrEmpty(evt.Category) ? "General" : evt.Category)
+                                </span>
+                                <span class="badge @(isPast ? "bg-dark" : "bg-success")">
+                                    @(isPast ? "Past" : "Upcoming")
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold mb-2">@evt.Name</h5>
+                                <p class="text-muted small mb-1">
+                                    &#128197; @evt.Date.ToString("dddd, MMMM dd, yyyy")
+                                    &bull; @evt.Date.ToString("hh:mm tt")
+                                </p>
+                                <p class="text-muted small mb-3">&#128205; @evt.Location</p>
+                                <hr class="my-2" />
+                                <p class="small text-muted mb-0">
+                                    Registered on <strong>@reg.RegisteredOn.ToString("MMMM dd, yyyy")</strong>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="/events/@evt.Id" class="btn btn-sm btn-outline-primary">View Event</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <p class="text-muted small">
+            @_myRegistrations.Count event(s) registered under
+            <strong>@SessionService.CurrentUser.Email</strong>
+        </p>
+    }
+</div>
+
+@code {
+    private List<BlazorApp.Models.Registration> _myRegistrations = new();
+
+    protected override void OnInitialized()
+    {
+        SessionService.OnSessionChanged += OnSessionChanged;
+        LoadRegistrations();
+    }
+
+    private void LoadRegistrations()
+    {
+        if (!SessionService.HasSession)
+        {
+            _myRegistrations = new();
+            return;
+        }
+
+        _myRegistrations = RegistrationService.GetAllRegistrations()
+            .Where(r => r.Email.Equals(SessionService.CurrentUser.Email, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void OnSessionChanged()
+    {
+        LoadRegistrations();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void GoToEvents() => Navigation.NavigateTo("/events");
+
+    public void Dispose()
+    {
+        SessionService.OnSessionChanged -= OnSessionChanged;
+    }
+}
