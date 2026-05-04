@@ -55,6 +55,46 @@ public class EventService : IEventService
             Description = "End the year in style at our annual holiday networking mixer. Connect with professionals from various industries while enjoying seasonal cocktails and appetizers.",
             Capacity = 200,
             Category = "Networking"
+        },
+        new Event
+        {
+            Id = 6,
+            Name = "Product Launch Showcase",
+            Date = new DateTime(2026, 10, 1, 10, 0, 0),
+            Location = "EventEase Innovation Hub, Boston, MA",
+            Description = "Be the first to experience our latest product lineup. This exclusive showcase features live demos, Q&A sessions with the product team, and early-access sign-ups.",
+            Capacity = 120,
+            Category = "Corporate"
+        },
+        new Event
+        {
+            Id = 7,
+            Name = "Women in Tech Symposium",
+            Date = new DateTime(2026, 10, 20, 9, 0, 0),
+            Location = "Downtown Conference Center, Denver, CO",
+            Description = "A full-day symposium celebrating and empowering women in technology. Features keynote speakers, mentorship roundtables, and a networking reception.",
+            Capacity = 250,
+            Category = "Conference"
+        },
+        new Event
+        {
+            Id = 8,
+            Name = "Fall Team Building Retreat",
+            Date = new DateTime(2026, 11, 7, 8, 0, 0),
+            Location = "Blue Ridge Mountain Lodge, Asheville, NC",
+            Description = "A two-day off-site retreat designed to strengthen team cohesion through collaborative activities, outdoor challenges, and strategic planning sessions.",
+            Capacity = 75,
+            Category = "Workshop"
+        },
+        new Event
+        {
+            Id = 9,
+            Name = "Startup Pitch Night",
+            Date = new DateTime(2026, 11, 19, 18, 30, 0),
+            Location = "The Innovation Loft, Portland, OR",
+            Description = "Watch emerging startups pitch their ideas to a panel of investors and industry experts. Open networking session and refreshments follow the presentations.",
+            Capacity = 180,
+            Category = "Networking"
         }
     };
 

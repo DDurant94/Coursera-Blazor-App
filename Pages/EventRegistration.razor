@@ -23,6 +23,26 @@
             Event not found. <a href="/events" class="alert-link">Return to events list.</a>
         </div>
     }
+    else if (RegistrationService.IsEventFull(EventId, _event.Capacity) && !_registrationSuccess)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center py-5">
+                <div class="display-1 mb-3">&#128683;</div>
+                <h2 class="fw-bold text-danger mb-2">Event Fully Booked</h2>
+                <p class="text-muted mb-4">
+                    <strong>@_event.Name</strong> has reached capacity and is no longer accepting registrations.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-outline-primary" @onclick="GoToEventDetail">
+                        &larr; Back to Event
+                    </button>
+                    <button class="btn btn-primary" @onclick="GoToEvents">
+                        Browse Other Events
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
     else if (_registrationSuccess)
     {
         <div class="row justify-content-center">
@@ -70,25 +90,33 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
                                     <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
-                                    <InputText class="form-control" @bind-Value="_registration.FirstName" placeholder="Enter first name" />
+                                    <InputText class="form-control" @bind-Value="_registration.FirstName"
+                                               placeholder="Enter first name" maxlength="50" />
                                     <ValidationMessage For="@(() => _registration.FirstName)" class="text-danger small" />
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
-                                    <InputText class="form-control" @bind-Value="_registration.LastName" placeholder="Enter last name" />
+                                    <InputText class="form-control" @bind-Value="_registration.LastName"
+                                               placeholder="Enter last name" maxlength="50" />
                                     <ValidationMessage For="@(() => _registration.LastName)" class="text-danger small" />
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="_registration.Email" placeholder="you@example.com" type="email" />
+                                <InputText class="form-control" @bind-Value="_registration.Email"
+                                           placeholder="you@example.com" maxlength="100" />
                                 <ValidationMessage For="@(() => _registration.Email)" class="text-danger small" />
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">Phone Number</label>
-                                <InputText class="form-control" @bind-Value="_registration.PhoneNumber" placeholder="(555) 000-0000" />
+                                <label class="form-label fw-semibold">Phone Number
+                                    <span class="text-muted small fw-normal">(optional)</span>
+                                </label>
+                                <InputText class="form-control" @bind-Value="_registration.PhoneNumber"
+                                           placeholder="(555) 123-4567" maxlength="20" />
+                                <div class="form-text">Accepted formats: (555) 123-4567 &bull; 555-123-4567 &bull; +1 555 123 4567</div>
+                                <ValidationMessage For="@(() => _registration.PhoneNumber)" class="text-danger small" />
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center">
@@ -145,17 +173,32 @@
 
     protected override void OnParametersSet()
     {
+        // Guard: invalid IDs (0 or negative) redirect immediately.
+        if (EventId <= 0)
+        {
+            Navigation.NavigateTo("/events", replace: true);
+            return;
+        }
+
         _event = EventService.GetEventById(EventId);
         _registration = new BlazorApp.Models.Registration { EventId = EventId };
+        _registrationSuccess = false;
+        _errorMessage = string.Empty;
     }
 
     private void HandleValidSubmit()
     {
-        if (string.IsNullOrWhiteSpace(_registration.FirstName) ||
-            string.IsNullOrWhiteSpace(_registration.LastName) ||
-            string.IsNullOrWhiteSpace(_registration.Email))
+        // Guard: event no longer exists (e.g. navigated with stale URL).
+        if (_event is null)
         {
-            _errorMessage = "Please fill in all required fields.";
+            Navigation.NavigateTo("/events", replace: true);
+            return;
+        }
+
+        // Guard: event became fully booked between page load and submit.
+        if (RegistrationService.IsEventFull(EventId, _event.Capacity))
+        {
+            _errorMessage = "Sorry, this event is now fully booked. No more spots are available.";
             return;
         }
 
