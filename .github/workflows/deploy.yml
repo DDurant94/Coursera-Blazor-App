@@ -34,27 +34,9 @@ jobs:
 
       # Blazor WASM uses <base href> to prefix all asset URLs.
       # GitHub Pages project sites are served at /<repo-name>/, so we
-      # rewrite the tag using Python (avoids shell quoting issues with sed).
+      # rewrite the tag before uploading.
       - name: Fix base href for GitHub Pages
-        env:
-          REPO: ${{ github.event.repository.name }}
-        run: |
-          python3 << 'PYEOF'
-          import os
-          repo = os.environ["REPO"]
-          path = "publish/wwwroot/index.html"
-          content = open(path).read()
-          old = '<base href="/" />'
-          new = f'<base href="/{repo}/" />'
-          if old in content:
-              open(path, "w").write(content.replace(old, new))
-              print(f"SUCCESS: base href set to /{repo}/")
-          else:
-              print("WARNING: pattern not found. Lines containing 'base':")
-              for line in content.splitlines():
-                  if "base" in line.lower():
-                      print(" ", line.strip())
-          PYEOF
+        run: sed -i 's|<base href="/" />|<base href="/Coursera-Blazor-App/" />|' publish/wwwroot/index.html
 
       # GitHub Pages runs Jekyll by default; files starting with "_" (like
       # Blazor's _framework/ folder) get stripped unless we opt out.
